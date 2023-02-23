@@ -36,8 +36,8 @@ func New(logger *zap.Logger, cfg *cfg.Config) (*App, error) {
 	return a, nil
 }
 
-func (a *App) Start() error {
-	webapp, err := httpapp.New(a.cfg, a.log)
+func (a *App) Start(ctx context.Context) error {
+	webapp, err := httpapp.New(ctx, a.cfg, a.log)
 	if err != nil {
 		a.log.Sugar().Errorw("Failed to start webapp", "reason", err)
 		err = fmt.Errorf("Failed to start webapp. Reason %w", err)

@@ -43,7 +43,7 @@ func (a *Adapter) Start() error {
 	return err
 }
 
-func New(cfg *cfg.Config, logger *zap.Logger) (*Adapter, error) {
+func New(ctx context.Context, cfg *cfg.Config, logger *zap.Logger) (*Adapter, error) {
 	listener, err := net.Listen("tcp", cfg.ServerPort)
 	if err != nil {
 		logger.Sugar().Errorw("Failed to initialize adapter", "error", err)
@@ -57,7 +57,7 @@ func New(cfg *cfg.Config, logger *zap.Logger) (*Adapter, error) {
 		WriteTimeout: time.Second * 10,
 	}
 
-	auth, err := usercases.New(logger, cfg)
+	auth, err := usercases.New(ctx, logger, cfg)
 	if err != nil {
 		logger.Sugar().Errorw("Failed to initialize adapter", "error", err)
 		return nil, fmt.Errorf("Adapater start failed: %w", err)

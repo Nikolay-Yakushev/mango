@@ -16,6 +16,7 @@ type Config struct {
 	Loglevel    string
 	ServerHost  string
 	ServerPort  string
+	Dbase       string
 	Srv         AuthService
 }
 
@@ -47,6 +48,8 @@ func New() *Config {
 		Loglevel: getEnv("LOG_LEVEL", "INFO"),
 		ServerHost: getEnv("SERVER_HOST", "127.0.0.1"),
 		ServerPort: getEnv("SERVER_PORT", ":8080"),
+		Dbase:      getEnv("DATABSE", "postgres"),
 		Srv: auths,
+		
 	}
 }

@@ -38,7 +38,7 @@ func main() {
 	}
 
 	logger.Sugar().Debug("Start up (app=%s) compleated", appDesc)
-	app.Start()
+	app.Start(ctx)
 	<-ctx.Done()
 
 	stopCtx, stopCancel := context.WithTimeout(context.Background(), 10*time.Second)

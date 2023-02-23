@@ -28,10 +28,6 @@ func (me *MangoErrors) ErrorExtra() string {
 }
 
 func (me *MangoErrors) Error() string {
-	// TODO is it possible to return `named` argument. e.g. me.msg.
-	// or we should end up using index to retrieve variables?
-	// something like this:
-	//return me.msg[helpers.IndexOf(me.msg, "message:")]
 	return me.msg[0]
 }
 

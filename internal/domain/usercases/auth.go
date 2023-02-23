@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Nikolay-Yakushev/mango/internal/adapters/memory"
+	"github.com/Nikolay-Yakushev/mango/internal/adapters/dbase"
 	models "github.com/Nikolay-Yakushev/mango/internal/domain"
 	"github.com/Nikolay-Yakushev/mango/internal/domain/entities/users"
 	ports "github.com/Nikolay-Yakushev/mango/internal/ports/driver"
@@ -72,10 +73,20 @@ func (a *Auth) verifyToken(tokenString string) (string, error){
 }
 
 
-func New(logger *zap.Logger, cfg *cfg.Config) (*Auth, error) {
+func New(ctx context.Context, logger *zap.Logger, cfg *cfg.Config) (*Auth, error) {
 	// TODO some config to parse. e.g: inmemory | redis | mongo | postgres
 	namedLogger := logger.Named("auth")
-	storage, err := memory.New(logger)
+	var (
+		storage ports.Storage
+		err error
+	)
+	if cfg.Dbase != "postgres"{
+		storage, err = memory.New(logger)
+		
+	}else{
+		storage, err = dbase.New(ctx, logger)
+	}
+	
 	if err != nil {
 		logger.Sugar().Errorw("Memory start failed", "error", err)
 		err := fmt.Errorf("Memory start failed. Reason: %w", err)
@@ -89,8 +100,7 @@ func New(logger *zap.Logger, cfg *cfg.Config) (*Auth, error) {
 }
 
 func (a *Auth) Login(ctx context.Context, login, password string) (string, string, error)  {
-	active := a.storage.GetActive()
-	u, err := a.storage.GetUser(ctx, login, active)
+	u, err := a.storage.GetUser(ctx, login)
 	if err != nil {
 		a.log.Sugar().Errorw("Storage error", "reason", err)
 		return "", "", err
@@ -118,7 +128,7 @@ func (a *Auth) Login(ctx context.Context, login, password string) (string, strin
 }
 
 func (a *Auth) Logout(ctx context.Context, login, password string) (bool, error) { 
-	u, err := a.storage.GetUser(ctx, login, a.storage.GetActive())
+	u, err := a.storage.GetUser(ctx, login)
 	if err != nil {
 		a.log.Sugar().Errorw("Storage error", "reason", err)
 		return false, err
@@ -156,12 +166,12 @@ func (a *Auth) Verify(
 		}
 	}
 	// check user is blocked
-	_, err = a.storage.GetUser(ctx, login, a.storage.GetBlocked())
+	_, err = a.storage.GetUser(ctx, login)
 	if err !=nil {
 		return r, err
 	}
 
-	r.User, err = a.storage.GetUser(ctx, login, a.storage.GetActive())
+	r.User, err = a.storage.GetUser(ctx, login)
 	if err != nil {
 		return r, err
 	}

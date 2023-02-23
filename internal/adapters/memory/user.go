@@ -15,9 +15,9 @@ func (imem *InMemoryStorage)GetActive()map[string]users.User{
 }
 
 func (imem *InMemoryStorage) GetUser(
-	ctx context.Context, login string, userMap map[string]users.User) (users.User, error) {
+	ctx context.Context, login string) (users.User, error) {
 	
-	user, ok := userMap[login]
+	user, ok := imem.GetActive()[login]
 	if !ok {
 		imem.log.Sugar().Errorw("user not found", "login", login)
 		err := models.NotFoundErr

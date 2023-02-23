@@ -20,6 +20,8 @@ func(a *Adapter) BindError(ctx *gin.Context, err error) {
 		case errors.Is(err, models.NotFoundErr):
 			ctx.JSON(http.StatusForbidden, gin.H{"error": "access denied",
 			})
+		case errors.Is(err, models.ConflictErr):
+			ctx.JSON(http.StatusConflict, gin.H{"error": "user already exists",})
 		default:
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(),})
 	}
